@@ -20,6 +20,8 @@ class Foo
   end
 end
 
+foo = Foo.new
+
 promise1 = foo.:slowly_foo.async(sleep_time: 0.1) # return Concurrent::Promises::Future by concurrent-ruby
 promise1.value # => "foo"
 
