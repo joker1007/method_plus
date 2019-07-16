@@ -20,7 +20,6 @@ RSpec.describe MethodPlus do
     foo = Foo.new
 
     promise1 = foo.:slowly_foo.async(sleep_time: 0.1)
-    pp promise1
     expect(promise1.value).to eq("foo")
 
     promise2 = foo.:with_args.async(0.1, b: true)
