@@ -20,6 +20,7 @@ RSpec.describe MethodPlus do
     foo = Foo.new
 
     promise1 = foo.:slowly_foo.async(sleep_time: 0.1)
+    pp promise1
     expect(promise1.value).to eq("foo")
 
     promise2 = foo.:with_args.async(0.1, b: true)
@@ -42,6 +43,7 @@ RSpec.describe MethodPlus do
 
     pr = foo.:with_args.partial(MethodPlus::Placeholder.new, b: true)
     expect(pr.call(0.1)).to eq([0.1, true, true])
+    expect { pr.call() }.to raise_error(ArgumentError)
 
     pr = foo.:with_args.partial(0.1, b: MethodPlus::Placeholder.new)
     expect(pr.call(b: 2)).to eq([0.1, 2, true])

@@ -1,8 +1,32 @@
 # MethodPlus
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/method_plus`. To experiment with that code, run `bin/console` for an interactive prompt.
+Method class extentions for `.:method_name` syntax.
 
-TODO: Delete this and the text above, and describe your gem
+# Example
+
+```ruby
+class Foo
+  def slowly_foo(sleep_time: 1)
+    sleep sleep_time
+    "foo"
+  end
+
+  def hoge(a, b, c = nil, *rest)
+  end
+
+  def with_args(a, b:, c: true, **h)
+    sleep a
+    [a, b, c]
+  end
+end
+
+promise1 = foo.:slowly_foo.async(sleep_time: 0.1) # return Concurrent::Promises::Future by concurrent-ruby
+promise1.value # => "foo"
+
+using MethodPlus::ToplevelSyntax
+new_pr = foo.:with_args.partial(_any, b: true) # => return Proc
+new_pr.call(0.1) # => [0.1, true, true]
+```
 
 ## Installation
 

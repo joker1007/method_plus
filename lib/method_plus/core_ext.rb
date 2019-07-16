@@ -19,11 +19,13 @@ module MethodPlus
     def partial(*args, **kw)
       ->(*args2, **kw2) do
         placeholder_idx = 0
-        new_args = args.map do |a|
+        new_args = args.each_with_object([]) do |a, arr|
           if a.is_a?(MethodPlus::Placeholder)
-            args2[placeholder_idx].tap { placeholder_idx += 1 }
+            if (args2.size - 1) >= placeholder_idx
+              arr << args2[placeholder_idx].tap { placeholder_idx += 1 }
+            end
           else
-            a
+            arr << a
           end
         end
 
