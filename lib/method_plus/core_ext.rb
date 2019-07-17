@@ -8,16 +8,16 @@ module MethodPlus
   module CoreExt
     extend BindingNinja
 
-    def async(*args)
+    def async(*args, &block)
       check_arity(*args)
 
       Concurrent::Promises.future_on(:io, *args) do |*args|
-        call(*args)
+        call(*args, &block)
       end
     end
 
-    def partial(*args, **kw)
-      ->(*args2, **kw2) do
+    def partial(*args, **kw, &block)
+      ->(*args2, **kw2, &block2) do
         placeholder_idx = 0
         new_args = args.each_with_object([]) do |a, arr|
           if a.is_a?(MethodPlus::Placeholder)
@@ -40,7 +40,8 @@ module MethodPlus
           end
         }.compact.to_h
 
-        call(*new_args, **new_kw)
+        new_block = block2 || block
+        call(*new_args, **new_kw, &new_block)
       end
     end
 

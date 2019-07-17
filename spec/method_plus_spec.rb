@@ -35,6 +35,9 @@ RSpec.describe MethodPlus do
 
    expect(pr.async(0.1).value).to eq("lambda")
    expect { pr.async() }.to raise_error(ArgumentError)
+
+   promise3 = [1, 2, 3].:map.async { |n| n * 2 }
+   expect(promise3.value).to eq([2, 4, 6])
   end
 
   it "enable any methods applyable partially" do
