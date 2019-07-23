@@ -2,9 +2,9 @@ RSpec.describe MethodPlus do
   using MethodPlus::ToplevelSyntax
 
   class Foo
-    def slowly_foo(sleep_time: 1)
+    def slowly_foo(sleep_time: 1, word: "foo")
       sleep sleep_time
-      "foo"
+      word
     end
 
     def hoge(a, b, c = nil, *rest)
@@ -61,5 +61,24 @@ RSpec.describe MethodPlus do
 
     lambda_proc = foo.:with_args.partial(0.1, b: _any)
     expect(lambda_proc.call(b: 2)).to eq([0.1, 2, true])
+  end
+
+  def meth1(i)
+    @results["meth1_#{i}"] ||= []
+    "after2".:tap.defer { |v| @results["meth1_#{i}"] << v }
+    "after1".:tap.defer { |v| @results["meth1_#{i}"] << v }
+    @results["meth1_#{i}"] << "before"
+    [1, 2, 3].each do |n|
+      "inner_after#{n}".:tap.defer { |v| @results["meth1_#{i}"] << v }
+      [1].map { |i| i * 2 }
+      @results["meth1_#{i}"] << "inner_before#{n}"
+    end
+  end
+
+  it do
+    @results = {}
+    meth1(1)
+    pp @results
+    expect(@results["meth1_1"][0]).to be_empty
   end
 end

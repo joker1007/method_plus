@@ -1,13 +1,11 @@
 require "concurrent"
-require "binding_ninja"
+require "debug_inspector"
 
 module MethodPlus
   class Placeholder
   end
 
   module CoreExt
-    extend BindingNinja
-
     def async(*args, &block)
       check_arity(*args)
 
@@ -43,6 +41,47 @@ module MethodPlus
         new_block = block2 || block
         call(*new_args, **new_kw, &new_block)
       end
+    end
+
+    def defer(*args, &block)
+      iseq = nil
+      stack_level = 0
+      params = {Thread.current => [args, block]}
+      current_thread = Thread.current
+      RubyVM::DebugInspector.open do |dc|
+        iseq = dc.frame_iseq(2)
+      end
+
+      events = iseq.to_a[9] == :method ? [:return] : [:b_call, :b_return]
+
+      trace = TracePoint.new(*events) do |tp|
+        pp tp
+        next unless current_thread == Thread.current
+
+        if tp.event == :b_call
+          stack_level += 1
+          next
+        end
+
+        if tp.event == :b_return && stack_level > 0
+          stack_level -= 1
+          next
+        end
+
+        begin
+          t = Thread.current["defer_method_#{object_id}"]
+          next unless t
+          t.disable
+          a, b = params[Thread.current]
+          call(*a, &b)
+          Thread.current["defer_method_#{object_id}"] = nil
+        ensure
+          p t
+          t.disable if t&.enabled?
+        end
+      end
+      Thread.current["defer_method_#{object_id}"] = trace
+      trace.enable(target: iseq)
     end
 
     private
