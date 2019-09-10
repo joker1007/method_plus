@@ -79,7 +79,7 @@ RSpec.describe MethodPlus do
     end
   end
 
-  it do
+  it "enable any method deferize" do
     @results = {}
     meth1(1)
     expect(@results["meth1"][0]).to eq("before")
