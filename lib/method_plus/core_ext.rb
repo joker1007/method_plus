@@ -82,6 +82,16 @@ module MethodPlus
       trace.enable(target: iseq)
     end
 
+    def memoize(*args, &block)
+      ivar_name = "@__#{name}__memoized"
+      value = owner.instance_variable_get(ivar_name)
+      return value unless value.nil?
+
+      value = call(*args, &block)
+      owner.instance_variable_set(ivar_name, value)
+      value
+    end
+
     private
 
     def check_arity(*args)

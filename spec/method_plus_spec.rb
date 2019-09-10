@@ -14,6 +14,11 @@ RSpec.describe MethodPlus do
       sleep a
       [a, b, c]
     end
+
+    def side_effect
+      @counter ||= 0
+      @counter += 1
+    end
   end
 
   it "can asynchronize any methods and procs" do
@@ -91,5 +96,15 @@ RSpec.describe MethodPlus do
     expect(@results["meth1"][6]).to eq("inner_after3")
     expect(@results["meth1"][7]).to eq("after1")
     expect(@results["meth1"][8]).to eq("after2")
+  end
+
+  it "memoize any method" do
+    foo = Foo.new
+
+    result = foo.:side_effect.memoize
+    expect(result).to eq(1)
+
+    result = foo.:side_effect.memoize
+    expect(result).to eq(1)
   end
 end
