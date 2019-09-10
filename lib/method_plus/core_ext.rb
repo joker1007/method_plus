@@ -44,13 +44,10 @@ module MethodPlus
     end
 
     def defer(*args, &block)
-      iseq = nil
       stack_level = 0
       params = {Thread.current => [args, block]}
       current_thread = Thread.current
-      RubyVM::DebugInspector.open do |dc|
-        iseq = dc.frame_iseq(2)
-      end
+      iseq = RubyVM::DebugInspector.open { @1.frame_iseq(2) }
 
       events = iseq.to_a[9] == :method ? [:return] : [:b_call, :b_return]
 
