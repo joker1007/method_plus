@@ -61,24 +61,35 @@ RSpec.describe MethodPlus do
 
     lambda_proc = foo.:with_args.partial(0.1, b: _any)
     expect(lambda_proc.call(b: 2)).to eq([0.1, 2, true])
+
+    # no placeholder arg
+    pr = foo.:with_args.partial(1, b: 2, c: false)
+    expect(pr.call).to eq([1, 2, false])
   end
 
   def meth1(i)
-    @results["meth1_#{i}"] ||= []
-    "after2".:tap.defer { |v| @results["meth1_#{i}"] << v }
-    "after1".:tap.defer { |v| @results["meth1_#{i}"] << v }
-    @results["meth1_#{i}"] << "before"
+    @results["meth1"] ||= []
+    "after2".:tap.defer { |v| @results["meth1"] << v }
+    "after1".:tap.defer { |v| @results["meth1"] << v }
+    @results["meth1"] << "before"
     [1, 2, 3].each do |n|
-      "inner_after#{n}".:tap.defer { |v| @results["meth1_#{i}"] << v }
+      "inner_after#{n}".:tap.defer { |v| @results["meth1"] << v }
       [1].map { |i| i * 2 }
-      @results["meth1_#{i}"] << "inner_before#{n}"
+      @results["meth1"] << "inner_before#{n}"
     end
   end
 
   it do
     @results = {}
     meth1(1)
-    pp @results
-    expect(@results["meth1_1"][0]).to be_empty
+    expect(@results["meth1"][0]).to eq("before")
+    expect(@results["meth1"][1]).to eq("inner_before1")
+    expect(@results["meth1"][2]).to eq("inner_after1")
+    expect(@results["meth1"][3]).to eq("inner_before2")
+    expect(@results["meth1"][4]).to eq("inner_after2")
+    expect(@results["meth1"][5]).to eq("inner_before3")
+    expect(@results["meth1"][6]).to eq("inner_after3")
+    expect(@results["meth1"][7]).to eq("after1")
+    expect(@results["meth1"][8]).to eq("after2")
   end
 end

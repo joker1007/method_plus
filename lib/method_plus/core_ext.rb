@@ -55,7 +55,6 @@ module MethodPlus
       events = iseq.to_a[9] == :method ? [:return] : [:b_call, :b_return]
 
       trace = TracePoint.new(*events) do |tp|
-        pp tp
         next unless current_thread == Thread.current
 
         if tp.event == :b_call
@@ -76,7 +75,6 @@ module MethodPlus
           call(*a, &b)
           Thread.current["defer_method_#{object_id}"] = nil
         ensure
-          p t
           t.disable if t&.enabled?
         end
       end
