@@ -1,5 +1,7 @@
 # MethodPlus
 
+**This feature is removed from ruby-2.7.0!** :cry:
+
 Method class extentions for `.:method_name` syntax.
 
 # Example
